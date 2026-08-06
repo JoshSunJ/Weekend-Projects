@@ -11,6 +11,8 @@ class Chip8 {
         std::uint16_t program_counter() const; // program_counter() const is a public “getter”: it lets main.cpp read the PC without exposing the actual variable for modification.
         void load_rom(const std::filesystem::path& path);
         std::uint8_t memory_at(std::uint16_t address) const; //const makes the function read-only, members variables can't be changed
+        std::uint16_t fetch_opcode() const;
+        std::uint16_t cycle();
 
 
     // Keep your constants and all state members here.

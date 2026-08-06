@@ -19,13 +19,7 @@ int main() {
     };
 
     // Write the CHIP-8 opcodes to the file
-    uint8_t chip8Program[] = {
-        0x00, 0xE0, // Clear the display
-        0x61, 0x05, // Set V0 to 5
-        0x61, 0x0A, // Set V1 to 10
-        0x82, 0x02, // Add V1 to V0
-        0xD0, 0x12  // Draw sprite at (X=0, Y=0)
-    };
+ 
 
     rom_file.write(
         reinterpret_cast<const char*>(chip8Program), sizeof(chip8Program)
@@ -33,6 +27,10 @@ int main() {
     rom_file.close();
 
     chip8.load_rom("test.rom");
+
+    const auto opcode = chip8.fetch_opcode();
+
+    std::cout << "Fetched opcode: 0x" << std::hex << chip8.fetch_opcode() << '\n'; // for chip8Program test.rom, std::cout << std::hex usually omits leading zeroes, so it prints: 0xe0
 
     std::cout << "memory[0x200]: 0x"
               << std::hex // type cast to hex

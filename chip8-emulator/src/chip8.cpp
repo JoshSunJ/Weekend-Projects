@@ -49,7 +49,7 @@ void Chip8::load_rom(const std::filesystem::path& path) {
     std::vector<std::uint8_t> buffer(rom_bytes);
 
     file.seekg(0, std::ios::beg); // moves from the file’s end—where we measured its size—back to the beginning
-    
+
     file.read(reinterpret_cast<char*>(buffer.data()), rom_size); // The read function takes two parameters: A pointer to the memory location where the data should be stored. The number of bytes to read
     if (!file) {
         throw std::runtime_error("Could not read ROM: " + path.string());
@@ -65,4 +65,30 @@ std::uint8_t Chip8::memory_at(std::uint16_t address) const {
     }
 
     return memory_[address];
+}
+
+// std::uint16_t Chip8::fetch_opcode() const{
+//     if(program_counter < memory_size - 1) {
+//         std::uint8_t high_byte = memory_[program_counter];
+//         std::uint8_t low_byte = memory_[program_counter + 1];
+//         static_cast<uint16_t>(high_byte);
+//         std::uint16_t opcode = (high_byte << 8) | low_byte;
+//         return opcode;
+//     }
+
+//     return;
+// };
+
+std::uint16_t Chip8::fetch_opcode() const { // At this moment, your fetch_opcode() does not change PC. So if you call it ten times, it will fetch 0x00E0 ten times.
+    if (program_counter_ >= memory_size - 1) {
+        throw std::out_of_range("Not enough memory remaining to fetch an opcode");
+    }
+
+    const std::uint8_t high_byte = memory_[program_counter_];
+    const std::uint8_t low_byte = memory_[program_counter_ + 1];
+
+    const std::uint16_t opcode =
+        (static_cast<std::uint16_t>(high_byte) << 8) | low_byte;
+
+    return opcode;
 }
