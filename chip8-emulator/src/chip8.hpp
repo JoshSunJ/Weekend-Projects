@@ -1,3 +1,5 @@
+#pragma once
+
 #include <array>
 #include <cstdint>
 #include <filesystem>
@@ -13,6 +15,7 @@ class Chip8 {
         std::uint8_t memory_at(std::uint16_t address) const; //const makes the function read-only, members variables can't be changed
         std::uint16_t fetch_opcode() const;
         std::uint16_t cycle();
+        std::uint8_t register_at(std::uint8_t index) const;
 
 
     // Keep your constants and all state members here.
@@ -22,8 +25,8 @@ class Chip8 {
         static constexpr std::size_t register_count = 16;
         static constexpr std::size_t stack_depth = 16;
         static constexpr std::size_t key_count = 16;
-        static constexpr std::size_t display_width = 64; //When placed inside a function, static extends the variable's lifetime to the entire duration of the program
-        static constexpr std::size_t display_height = 32; // This keyword indicates that the variable is a compile-time constant. The value must be known at compile time, allowing for optimizations and ensuring that the variable can be used in constant expressions.
+        static constexpr std::size_t display_width = 64;
+        static constexpr std::size_t display_height = 32;
 
         static constexpr std::uint16_t program_start = 0x200;
 
@@ -40,6 +43,7 @@ class Chip8 {
         std::uint8_t stack_pointer_;
         std::uint8_t delay_timer_;
         std::uint8_t sound_timer_;
-};
 
+        void execute_opcode(std::uint16_t opcode);
+};
 

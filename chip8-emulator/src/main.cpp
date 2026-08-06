@@ -22,18 +22,28 @@ int main() {
  
 
     rom_file.write(
-        reinterpret_cast<const char*>(chip8Program), sizeof(chip8Program)
+        reinterpret_cast<const char*>(chip8_program), sizeof(chip8_program)
     );
     rom_file.close();
 
     chip8.load_rom("test.rom");
 
-    const auto opcode = chip8.fetch_opcode();
 
-    std::cout << "Fetched opcode: 0x" << std::hex << chip8.fetch_opcode() << '\n'; // for chip8Program test.rom, std::cout << std::hex usually omits leading zeroes, so it prints: 0xe0
+    const auto first_opcode = chip8.cycle();
 
-    std::cout << "memory[0x200]: 0x"
-              << std::hex // type cast to hex
-              << static_cast<int>(chip8.memory_at(0x200))
-              << '\n';
+    std::cout << "Fetched first opcode: 0x" << std::hex << first_opcode << '\n';
+
+    std::cout << "PC after first cycle: 0x" << chip8.program_counter() << '\n';
+
+    const auto second_opcode = chip8.cycle();
+
+    std::cout << "Fetched second opcode: 0x" << std::hex << second_opcode << '\n';
+
+    std::cout << "PC after second cycle: 0x" << chip8.program_counter() << '\n';
+
+    std::cout << "V0 after two cycles: 0x"
+              << static_cast<int>(chip8.register_at(0)) << '\n';
+
+    std::cout << "V1 after two cycles: 0x"
+              << static_cast<int>(chip8.register_at(1)) << '\n';
 }

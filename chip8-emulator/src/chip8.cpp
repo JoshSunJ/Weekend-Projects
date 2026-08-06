@@ -92,3 +92,35 @@ std::uint16_t Chip8::fetch_opcode() const { // At this moment, your fetch_opcode
 
     return opcode;
 }
+
+void Chip8::execute_opcode(std::uint16_t opcode) {
+    switch (opcode & 0xF000) {
+    case 0x6000: { // 0x6XKK instruction load kk into x register
+        const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+        const auto kk = static_cast<std::uint8_t>(opcode & 0x00FF);
+
+        registers_[x] = kk; //registers store uint8_t
+        return;
+    }
+    default:
+        throw std::runtime_error("Unsupported CHIP-8 opcode");
+    }
+}
+
+std::uint8_t Chip8::register_at(std::uint8_t index) const {
+    if (index >= register_count) { // bounds-checked
+        throw std::out_of_range("CHIP-8 register index is out of range");
+    }
+
+    return registers_[index];
+}
+
+std::uint16_t Chip8::cycle() {
+    const std::uint16_t opcode = fetch_opcode(); //Read the instruction at the current PC.
+
+    program_counter_ += 2;
+
+    execute_opcode(opcode);
+
+    return opcode;
+}
