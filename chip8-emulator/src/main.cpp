@@ -14,8 +14,8 @@ int main() {
     }
 
     std::uint8_t chip8_program[] = {
-        0x60, 0x05,
-        0x61, 0x0A
+        0x60, 0xFE, // V0 = 254
+        0x70, 0x05  // V0 = 254 + 5
     };
 
     // Write the CHIP-8 opcodes to the file
@@ -41,6 +41,7 @@ int main() {
 
     std::cout << "PC after second cycle: 0x" << chip8.program_counter() << '\n';
 
+    //test registers 
     std::cout << "V0 after two cycles: 0x"
               << static_cast<int>(chip8.register_at(0)) << '\n';
 

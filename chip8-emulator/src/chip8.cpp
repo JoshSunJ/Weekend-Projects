@@ -102,6 +102,13 @@ void Chip8::execute_opcode(std::uint16_t opcode) {
         registers_[x] = kk; //registers store uint8_t
         return;
     }
+    case 0x7000: {
+        const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+        const auto kk = static_cast<std::uint8_t>(opcode & 0x00FF);
+        
+        registers_[x] += kk;
+        return;
+    }
     default:
         throw std::runtime_error("Unsupported CHIP-8 opcode");
     }
