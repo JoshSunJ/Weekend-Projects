@@ -14,8 +14,12 @@ int main() {
     }
 
     std::uint8_t chip8_program[] = {
-        0x60, 0xFE, // V0 = 254
-        0x70, 0x05  // V0 = 254 + 5
+        0x60, 0x0A, // V0 = 10
+        0x61, 0x05, // V1 = 5
+        0x80, 0x15, // V0 = V0 - V1; no borrow, VF = 1
+        0x62, 0x03, // V2 = 3
+        0x63, 0x05, // V3 = 5
+        0x82, 0x35  // V2 = V2 - V3; borrow, VF = 0
     };
 
     // Write the CHIP-8 opcodes to the file
@@ -29,22 +33,19 @@ int main() {
     chip8.load_rom("test.rom");
 
 
-    const auto first_opcode = chip8.cycle();
+    for (int cycle = 0; cycle < 6; ++cycle) {
+        std::cout << "Fetched opcode: 0x" << std::hex << chip8.cycle() << '\n';
+    }
 
-    std::cout << "Fetched first opcode: 0x" << std::hex << first_opcode << '\n';
+    std::cout << "PC after six cycles: 0x" << chip8.program_counter() << '\n';
 
-    std::cout << "PC after first cycle: 0x" << chip8.program_counter() << '\n';
-
-    const auto second_opcode = chip8.cycle();
-
-    std::cout << "Fetched second opcode: 0x" << std::hex << second_opcode << '\n';
-
-    std::cout << "PC after second cycle: 0x" << chip8.program_counter() << '\n';
-
-    //test registers 
-    std::cout << "V0 after two cycles: 0x"
+    std::cout << "V0 after no-borrow subtraction: 0x"
               << static_cast<int>(chip8.register_at(0)) << '\n';
 
-    std::cout << "V1 after two cycles: 0x"
-              << static_cast<int>(chip8.register_at(1)) << '\n';
+    std::cout << "V2 after borrow subtraction: 0x"
+              << static_cast<int>(chip8.register_at(2)) << '\n';
+
+    std::cout << "VF after borrow subtraction: 0x"
+              << static_cast<int>(chip8.register_at(0xF)) << '\n';
+
 }

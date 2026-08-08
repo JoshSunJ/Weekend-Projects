@@ -102,12 +102,68 @@ void Chip8::execute_opcode(std::uint16_t opcode) {
         registers_[x] = kk; //registers store uint8_t
         return;
     }
-    case 0x7000: {
+    case 0x7000: { // 07XKK add a value to a register without overflow handling
         const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
         const auto kk = static_cast<std::uint8_t>(opcode & 0x00FF);
         
         registers_[x] += kk;
         return;
+    }
+    case 0x8000: {
+        if ((opcode & 0x000F) == 0x0000){ // 0x8XY0 copy
+            const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+            const auto y = static_cast<std::uint8_t>((opcode & 0x00F0) >> 4);
+
+            registers_[x] = registers_[y];
+            return;
+        }
+        if((opcode & 0x000F) == 0x0001) { // 0x8XY1 VX or VY
+            const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+            const auto y = static_cast<std::uint8_t>((opcode & 0x00F0) >> 4);
+
+            registers_[x] |= registers_[y];
+            return;
+        }
+        if((opcode & 0x000F) == 0x0002) { // 0x8XY2 VX and VY
+            const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+            const auto y = static_cast<std::uint8_t>((opcode & 0x00F0) >> 4);
+
+            registers_[x] &= registers_[y];
+            return;
+        }
+        if((opcode & 0x000F) == 0x0003) { // 0x8XY3 VX xor VY
+            const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+            const auto y = static_cast<std::uint8_t>((opcode & 0x00F0) >> 4);
+
+            registers_[x] ^= registers_[y];
+            return;
+        }
+        if((opcode & 0x000F) == 0x0004) { // 0x8XY4: VX = VX + VY, VF = carry
+            const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+            const auto y = static_cast<std::uint8_t>((opcode & 0x00F0) >> 4);
+
+            const auto vx = registers_[x];
+            const auto vy = registers_[y];
+            const std::uint16_t sum =
+                static_cast<std::uint16_t>(vx) + static_cast<std::uint16_t>(vy);
+
+            registers_[x] = static_cast<std::uint8_t>(sum); // save lower byte x at vx
+            registers_[0x0F] = sum > 0xFF ? 1 : 0; // save ninth carry at VF / flag it
+            return;
+        }
+        if ((opcode & 0x000F) == 0x0005) { // 0x8XY5: VX = VX - VY, VF = no borrow
+            const auto x = static_cast<std::uint8_t>((opcode & 0x0F00) >> 8);
+            const auto y = static_cast<std::uint8_t>((opcode & 0x00F0) >> 4);
+
+            const auto vx = registers_[x];
+            const auto vy = registers_[y];
+
+            registers_[0x0F] = vx >= vy ? 1 : 0;
+            registers_[x] = static_cast<std::uint8_t>(vx - vy);
+            return;
+        }
+
+        throw std::runtime_error("Unsupported 8XY? opcode");
     }
     default:
         throw std::runtime_error("Unsupported CHIP-8 opcode");
